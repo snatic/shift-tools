@@ -1,10 +1,12 @@
 #!/bin/bash
-
 #modified from original script on https://forum.lisk.io/viewtopic.php?t=395 by sgdias
 
-#forever installed needed
+#Adapted for screen sessions
 
-tail -Fn0 ./logs/shift.log |
+SHIFT_SCREEN="new"
+echo "Antifork started.."
+
+tail -Fn0 ~/shift/logs/shift.log |
 while read line ; do
 
     echo "$line" | grep "Fork"
@@ -12,15 +14,14 @@ while read line ; do
         echo "Fork found: $line"
     fi
 
-    
        echo "$line" | grep "\"cause\":2"
     if [ $? = 0 ]; then
         echo "Fork with root cause code 2 found. Restarting node main."
         echo "Auto restarting node..."
-        killall -15 node
-        killall -15 nodejs
-        sleep 5
-        forever start app.js
+	#stop node app.js
+	screen -S $SHIFT_SCREEN -p 0 -X stuff "^C"
+	screen -S $SHIFT_SCREEN -p 0 -X stuff "node app.js$(printf \\r)"
+
         echo "Auto Restarting Done"
 
     fi
